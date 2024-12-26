@@ -59,7 +59,7 @@ omit = ["./src/ameba/*"]
 # ================== #
 
 [project]
-name = "repo_template"
+name = "whisper2subtitle"
 version = "1.0.0"
 description = "Repository template for Python projects"
 authors = [
@@ -74,8 +74,8 @@ requires-python = ">= 3.9"
 license = { text = "MIT" }
 
 [project.urls]
-Homepage = "https://github.com/Mai0313/repo_template"
-Repository = "https://github.com/Mai0313/repo_template"
+Homepage = "https://github.com/Mai0313/whisper2subtitle"
+Repository = "https://github.com/Mai0313/whisper2subtitle"
 
 [tool.rye.scripts]
 
@@ -458,7 +458,7 @@ skip-magic-trailing-comma = true
 [tool.logfire]
 send_to_logfire = false
 token = false
-project_name = "repo_template"
+project_name = "whisper2subtitle"
 trace_sample_rate = 1.0
 console_colors = "auto"
 console_span_style = "show-parents"

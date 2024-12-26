@@ -1,9 +1,9 @@
-site_name: repo_template
-site_url: https://mai0313.github.io/repo_template/
+site_name: whisper2subtitle
+site_url: https://mai0313.github.io/whisper2subtitle/
 site_author: Wei Cheng Lee
 
-repo_name: Mai0313/repo_template
-repo_url: https://github.com/Mai0313/repo_template
+repo_name: Mai0313/whisper2subtitle
+repo_url: https://github.com/Mai0313/whisper2subtitle
 edit_uri: edit/master/docs/
 
 docs_dir: docs
@@ -148,7 +148,7 @@ plugins:
 extra:
   social:
   - icon: fontawesome/brands/github-alt
-    link: https://github.com/Mai0313/repo_template
+    link: https://github.com/Mai0313/whisper2subtitle
 
   alternate:
   - link: /
