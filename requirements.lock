@@ -11,9 +11,193 @@
 
 annotated-types==0.7.0
     # via pydantic
+anyio==4.7.0
+    # via httpx
+    # via openai
+audioread==3.0.1
+    # via librosa
+certifi==2024.12.14
+    # via httpcore
+    # via httpx
+    # via requests
+cffi==1.17.1
+    # via soundfile
+charset-normalizer==3.4.1
+    # via requests
+colorama==0.4.6 ; platform_system == 'Windows'
+    # via tqdm
+decorator==5.1.1
+    # via librosa
+    # via moviepy
+distro==1.9.0
+    # via openai
+exceptiongroup==1.2.2 ; python_full_version < '3.11'
+    # via anyio
+filelock==3.16.1
+    # via huggingface-hub
+    # via torch
+    # via transformers
+    # via triton
+fsspec==2024.12.0
+    # via huggingface-hub
+    # via torch
+h11==0.14.0
+    # via httpcore
+httpcore==1.0.7
+    # via httpx
+httpx==0.28.1
+    # via openai
+huggingface-hub==0.27.0
+    # via tokenizers
+    # via transformers
+idna==3.10
+    # via anyio
+    # via httpx
+    # via requests
+imageio==2.36.1
+    # via moviepy
+imageio-ffmpeg==0.5.1
+    # via moviepy
+inquirerpy==0.3.4
+    # via huggingface-hub
+jinja2==3.1.5
+    # via torch
+jiter==0.8.2
+    # via openai
+joblib==1.4.2
+    # via librosa
+    # via scikit-learn
+lazy-loader==0.4
+    # via librosa
+librosa==0.10.2.post1
+llvmlite==0.43.0
+    # via numba
+markupsafe==3.0.2
+    # via jinja2
+moviepy==2.1.1
+mpmath==1.3.0
+    # via sympy
+msgpack==1.1.0
+    # via librosa
+networkx==3.2.1
+    # via torch
+numba==0.60.0
+    # via librosa
+numpy==2.0.2
+    # via imageio
+    # via librosa
+    # via moviepy
+    # via numba
+    # via scikit-learn
+    # via scipy
+    # via soxr
+    # via torchvision
+    # via transformers
+nvidia-cublas-cu11==11.11.3.6 ; platform_machine == 'x86_64' and platform_system == 'Linux'
+    # via nvidia-cudnn-cu11
+    # via nvidia-cusolver-cu11
+    # via torch
+nvidia-cuda-cupti-cu11==11.8.87 ; platform_machine == 'x86_64' and platform_system == 'Linux'
+    # via torch
+nvidia-cuda-nvrtc-cu11==11.8.89 ; platform_machine == 'x86_64' and platform_system == 'Linux'
+    # via torch
+nvidia-cuda-runtime-cu11==11.8.89 ; platform_machine == 'x86_64' and platform_system == 'Linux'
+    # via torch
+nvidia-cudnn-cu11==9.1.0.70 ; platform_machine == 'x86_64' and platform_system == 'Linux'
+    # via torch
+nvidia-cufft-cu11==10.9.0.58 ; platform_machine == 'x86_64' and platform_system == 'Linux'
+    # via torch
+nvidia-curand-cu11==10.3.0.86 ; platform_machine == 'x86_64' and platform_system == 'Linux'
+    # via torch
+nvidia-cusolver-cu11==11.4.1.48 ; platform_machine == 'x86_64' and platform_system == 'Linux'
+    # via torch
+nvidia-cusparse-cu11==11.7.5.86 ; platform_machine == 'x86_64' and platform_system == 'Linux'
+    # via torch
+nvidia-nccl-cu11==2.20.5 ; platform_machine == 'x86_64' and platform_system == 'Linux'
+    # via torch
+nvidia-nvtx-cu11==11.8.86 ; platform_machine == 'x86_64' and platform_system == 'Linux'
+    # via torch
+openai==1.58.1
+packaging==24.2
+    # via huggingface-hub
+    # via lazy-loader
+    # via pooch
+    # via transformers
+pfzy==0.3.4
+    # via inquirerpy
+pillow==10.4.0
+    # via imageio
+    # via moviepy
+    # via torchvision
+platformdirs==4.3.6
+    # via pooch
+pooch==1.8.2
+    # via librosa
+proglog==0.1.10
+    # via moviepy
+prompt-toolkit==3.0.48
+    # via inquirerpy
+pycparser==2.22
+    # via cffi
 pydantic==2.10.3
+    # via openai
 pydantic-core==2.27.1
     # via pydantic
+python-dotenv==1.0.1
+    # via moviepy
+pyyaml==6.0.2
+    # via huggingface-hub
+    # via transformers
+regex==2024.11.6
+    # via transformers
+requests==2.32.3
+    # via huggingface-hub
+    # via pooch
+    # via transformers
+safetensors==0.4.5
+    # via transformers
+scikit-learn==1.6.0
+    # via librosa
+scipy==1.13.1
+    # via librosa
+    # via scikit-learn
+setuptools==75.6.0
+    # via imageio-ffmpeg
+sniffio==1.3.1
+    # via anyio
+    # via openai
+soundfile==0.12.1
+    # via librosa
+soxr==0.5.0.post1
+    # via librosa
+sympy==1.13.3
+    # via torch
+threadpoolctl==3.5.0
+    # via scikit-learn
+tokenizers==0.21.0
+    # via transformers
+torch==2.4.1+cu118
+    # via torchaudio
+    # via torchvision
+torchaudio==2.4.1+cu118
+torchvision==0.19.1+cu118
+tqdm==4.67.1
+    # via huggingface-hub
+    # via openai
+    # via proglog
+    # via transformers
+transformers==4.47.1
+triton==3.0.0 ; python_full_version < '3.13' and platform_machine == 'x86_64' and platform_system == 'Linux'
+    # via torch
 typing-extensions==4.12.2
+    # via anyio
+    # via huggingface-hub
+    # via librosa
+    # via openai
     # via pydantic
     # via pydantic-core
+    # via torch
+urllib3==2.3.0
+    # via requests
+wcwidth==0.2.13
+    # via prompt-toolkit
