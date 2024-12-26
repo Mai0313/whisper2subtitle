@@ -32,6 +32,8 @@ attrs==24.2.0
     # via referencing
 audioread==3.0.1
     # via librosa
+av==14.0.1
+    # via faster-whisper
 babel==2.16.0
     # via jupyterlab-server
     # via mkdocs-material
@@ -63,11 +65,15 @@ colorama==0.4.6
     # via mkdocs-material
     # via pytest
     # via tqdm
+coloredlogs==15.0.1
+    # via onnxruntime
 comm==0.2.2
     # via ipykernel
     # via ipywidgets
 coverage==7.6.4
     # via pytest-cov
+ctranslate2==4.5.0
+    # via faster-whisper
 debugpy==1.8.8
     # via ipykernel
 decorator==5.1.1
@@ -89,6 +95,7 @@ execnet==2.1.1
     # via pytest-xdist
 executing==2.1.0
     # via stack-data
+faster-whisper==1.1.0
 fastjsonschema==2.20.0
     # via nbformat
 filelock==3.16.1
@@ -102,6 +109,8 @@ flake8==7.1.1
     # via flake8-html
 flake8-html==0.4.3
     # via genbadge
+flatbuffers==24.12.23
+    # via onnxruntime
 fqdn==1.5.1
     # via jsonschema
 fsspec==2024.12.0
@@ -122,8 +131,11 @@ httpx==0.28.0
     # via jupyterlab
     # via openai
 huggingface-hub==0.27.0
+    # via faster-whisper
     # via tokenizers
     # via transformers
+humanfriendly==10.0
+    # via coloredlogs
 identify==2.6.2
     # via pre-commit
 idna==3.10
@@ -279,10 +291,12 @@ notebook-shim==0.2.4
 numba==0.60.0
     # via librosa
 numpy==2.0.2
+    # via ctranslate2
     # via imageio
     # via librosa
     # via moviepy
     # via numba
+    # via onnxruntime
     # via scikit-learn
     # via scipy
     # via soxr
@@ -312,6 +326,8 @@ nvidia-nccl-cu11==2.20.5 ; platform_machine == 'x86_64' and platform_system == '
     # via torch
 nvidia-nvtx-cu11==11.8.86 ; platform_machine == 'x86_64' and platform_system == 'Linux'
     # via torch
+onnxruntime==1.20.1
+    # via faster-whisper
 openai==1.58.1
 overrides==7.7.0
     # via jupyter-server
@@ -324,6 +340,7 @@ packaging==24.2
     # via lazy-loader
     # via mkdocs
     # via nbconvert
+    # via onnxruntime
     # via pooch
     # via pytest
     # via transformers
@@ -362,6 +379,8 @@ prometheus-client==0.21.0
 prompt-toolkit==3.0.48
     # via inquirerpy
     # via ipython
+protobuf==5.29.2
+    # via onnxruntime
 psutil==6.1.0
     # via ipykernel
 ptyprocess==0.7.0 ; os_name != 'nt' or sys_platform != 'win32'
@@ -388,6 +407,8 @@ pygments==2.18.0
 pymdown-extensions==10.12
     # via mkdocs-material
     # via mkdocstrings
+pyreadline3==3.5.4 ; sys_platform == 'win32'
+    # via humanfriendly
 pytest==8.3.4
     # via pytest-asyncio
     # via pytest-cov
@@ -410,6 +431,7 @@ pywinpty==2.0.14 ; os_name == 'nt'
     # via jupyter-server-terminals
     # via terminado
 pyyaml==6.0.2
+    # via ctranslate2
     # via huggingface-hub
     # via jupyter-events
     # via mkdocs
@@ -458,6 +480,7 @@ scipy==1.13.1
 send2trash==1.8.3
     # via jupyter-server
 setuptools==75.4.0
+    # via ctranslate2
     # via genbadge
     # via imageio-ffmpeg
     # via jupyterlab
@@ -477,6 +500,7 @@ soxr==0.5.0.post1
 stack-data==0.6.3
     # via ipython
 sympy==1.13.3
+    # via onnxruntime
     # via torch
 termcolor==2.5.0
     # via fire
@@ -488,6 +512,7 @@ threadpoolctl==3.5.0
 tinycss2==1.4.0
     # via nbconvert
 tokenizers==0.21.0
+    # via faster-whisper
     # via transformers
 tomli==2.1.0 ; python_full_version <= '3.11'
     # via coverage
@@ -506,6 +531,7 @@ tornado==6.4.1
     # via notebook
     # via terminado
 tqdm==4.67.1
+    # via faster-whisper
     # via huggingface-hub
     # via openai
     # via proglog
