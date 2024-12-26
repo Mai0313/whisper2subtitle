@@ -265,6 +265,8 @@ mkdocs-material-extensions==1.3.1
 mkdocstrings==0.27.0
     # via mkdocstrings-python
 mkdocstrings-python==1.12.2
+more-itertools==10.5.0
+    # via openai-whisper
 moviepy==2.1.1
 mpmath==1.3.0
     # via sympy
@@ -290,6 +292,7 @@ notebook-shim==0.2.4
     # via notebook
 numba==0.60.0
     # via librosa
+    # via openai-whisper
 numpy==2.0.2
     # via ctranslate2
     # via imageio
@@ -297,6 +300,7 @@ numpy==2.0.2
     # via moviepy
     # via numba
     # via onnxruntime
+    # via openai-whisper
     # via scikit-learn
     # via scipy
     # via soxr
@@ -329,6 +333,7 @@ nvidia-nvtx-cu11==11.8.86 ; platform_machine == 'x86_64' and platform_system == 
 onnxruntime==1.20.1
     # via faster-whisper
 openai==1.58.1
+openai-whisper==20240930
 overrides==7.7.0
     # via jupyter-server
 packaging==24.2
@@ -394,8 +399,10 @@ pycparser==2.22
     # via cffi
 pydantic==2.10.3
     # via openai
+    # via pydantic-settings
 pydantic-core==2.27.1
     # via pydantic
+pydantic-settings==2.7.0
 pyflakes==3.2.0
     # via flake8
 pygments==2.18.0
@@ -422,6 +429,7 @@ python-dateutil==2.9.0.post0
     # via jupyter-client
 python-dotenv==1.0.1
     # via moviepy
+    # via pydantic-settings
 python-json-logger==2.0.7
     # via jupyter-events
 pywin32==308 ; platform_python_implementation != 'PyPy' and sys_platform == 'win32'
@@ -452,6 +460,7 @@ referencing==0.35.1
     # via jupyter-events
 regex==2024.11.6
     # via mkdocs-material
+    # via tiktoken
     # via transformers
 requests==2.32.3
     # via genbadge
@@ -459,6 +468,7 @@ requests==2.32.3
     # via jupyterlab-server
     # via mkdocs-material
     # via pooch
+    # via tiktoken
     # via transformers
 rfc3339-validator==0.1.4
     # via jsonschema
@@ -509,6 +519,8 @@ terminado==0.18.1
     # via jupyter-server-terminals
 threadpoolctl==3.5.0
     # via scikit-learn
+tiktoken==0.8.0
+    # via openai-whisper
 tinycss2==1.4.0
     # via nbconvert
 tokenizers==0.21.0
@@ -519,6 +531,7 @@ tomli==2.1.0 ; python_full_version <= '3.11'
     # via jupyterlab
     # via pytest
 torch==2.4.1+cu118
+    # via openai-whisper
     # via torchaudio
     # via torchvision
 torchaudio==2.4.1+cu118
@@ -534,6 +547,7 @@ tqdm==4.67.1
     # via faster-whisper
     # via huggingface-hub
     # via openai
+    # via openai-whisper
     # via proglog
     # via transformers
 traitlets==5.14.3
@@ -551,7 +565,8 @@ traitlets==5.14.3
     # via nbconvert
     # via nbformat
 transformers==4.47.1
-triton==3.0.0 ; python_full_version < '3.13' and platform_machine == 'x86_64' and platform_system == 'Linux'
+triton==3.0.0 ; (platform_machine == 'x86_64' and platform_system != 'Linux' and sys_platform == 'linux') or (platform_system != 'Linux' and sys_platform == 'linux2') or (python_full_version < '3.13' and platform_machine == 'x86_64' and platform_system == 'Linux') or (platform_machine != 'x86_64' and sys_platform == 'linux2') or (python_full_version >= '3.13' and platform_machine == 'x86_64' and sys_platform == 'linux') or (python_full_version >= '3.13' and sys_platform == 'linux2')
+    # via openai-whisper
     # via torch
 types-python-dateutil==2.9.0.20241003
     # via arrow
