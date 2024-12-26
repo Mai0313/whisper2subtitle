@@ -397,10 +397,10 @@ pycodestyle==2.12.1
     # via flake8
 pycparser==2.22
     # via cffi
-pydantic==2.10.3
+pydantic==2.10.4
     # via openai
     # via pydantic-settings
-pydantic-core==2.27.1
+pydantic-core==2.27.2
     # via pydantic
 pydantic-settings==2.7.0
 pyflakes==3.2.0
