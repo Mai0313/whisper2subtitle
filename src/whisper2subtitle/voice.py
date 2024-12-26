@@ -7,7 +7,7 @@ from config import Config
 from openai import OpenAI
 from moviepy import AudioFileClip, VideoFileClip
 import whisper
-from pydantic import BaseModel
+from pydantic import Field, BaseModel
 import requests
 from rich.console import Console
 from faster_whisper import WhisperModel, BatchedInferencePipeline
@@ -20,6 +20,7 @@ console = Console()
 
 class VoiceConvertor(BaseModel):
     input_file: Path
+    is_test: bool = Field(default=False)
 
     def convert_video_to_audio(self) -> None:
         """Convert a video file to an audio file."""
@@ -29,7 +30,7 @@ class VoiceConvertor(BaseModel):
                 video.audio.write_audiofile(output_file.as_posix())
         self.input_file = output_file
 
-    def split_audio_into_chunks(self, max_size_mb: int, is_test: bool) -> list[Path]:
+    def split_audio_into_chunks(self, max_size_mb: int) -> list[Path]:
         """Split an audio file into chunks based on the maximum size (MB)."""
         audio_chunks: list[Path] = []
 
@@ -57,7 +58,7 @@ class VoiceConvertor(BaseModel):
                 audio_chunks.append(chunk_path)
 
                 start_time = end_time
-                if is_test:
+                if self.is_test:
                     break
 
         return audio_chunks
@@ -66,7 +67,7 @@ class VoiceConvertor(BaseModel):
         if self.input_file.suffix != ".mp3":
             self.convert_video_to_audio()
 
-        audio_bytes = self.split_audio_into_chunks(max_size_mb=25, is_test=False)
+        audio_bytes = self.split_audio_into_chunks(max_size_mb=25)
         transcriptions = []
         for audio in audio_bytes:
             transcription = requests.post(
@@ -77,6 +78,34 @@ class VoiceConvertor(BaseModel):
             transcriptions.append(transcription.json())
         return transcriptions
 
+    def generate_srt(self, result: dict) -> None:
+        """將 Whisper 輸出的結果生成 SRT 文件"""
+        srt_content = []
+        for i, segment in enumerate(result["segments"]):
+            start_time = self.format_timestamp(segment["start"])
+            end_time = self.format_timestamp(segment["end"])
+            text = segment["text"]
+
+            srt_content.append(f"{i + 1}")
+            srt_content.append(f"{start_time} --> {end_time}")
+            srt_content.append(text.strip())
+            srt_content.append("")  # 空行分隔
+
+        # 將結果寫入 .srt 文件
+        with open("result.srt", "w", encoding="utf-8") as f:
+            f.write("\n".join(srt_content))
+
+    def format_timestamp(self, seconds: float) -> str:
+        """格式化時間戳為 SRT 標準格式: HH:MM:SS,mmm"""
+        milliseconds = int(seconds * 1000)
+        hours = milliseconds // (1000 * 60 * 60)
+        milliseconds %= 1000 * 60 * 60
+        minutes = milliseconds // (1000 * 60)
+        milliseconds %= 1000 * 60
+        seconds = milliseconds // 1000
+        milliseconds %= 1000
+        return f"{hours:02}:{minutes:02}:{seconds:02},{milliseconds:03}"
+
     def use_whisper(self) -> whisper.DecodingResult:
         if self.input_file.suffix != ".mp3":
             self.convert_video_to_audio()
@@ -84,6 +113,7 @@ class VoiceConvertor(BaseModel):
         result = model.transcribe(self.input_file.as_posix(), word_timestamps=True)
         with open("result.json", "w", encoding="utf-8") as f:
             json.dump(result, f, indent=4, ensure_ascii=False)
+        self.generate_srt(result)
         return result
 
     def use_oai_whisper(self) -> list[dict[str, Any]]:
@@ -92,7 +122,7 @@ class VoiceConvertor(BaseModel):
 
         client = OpenAI(api_key=config.openai_api_key)
 
-        audio_bytes = self.split_audio_into_chunks(max_size_mb=25, is_test=True)
+        audio_bytes = self.split_audio_into_chunks(max_size_mb=25)
         transcriptions = []
         for audio in audio_bytes:
             transcription = client.audio.transcriptions.create(
@@ -112,5 +142,5 @@ class VoiceConvertor(BaseModel):
 
 
 if __name__ == "__main__":
-    vc = VoiceConvertor(input_file="./data/sample_41.mp3")  # type: ignore[arg-type]
+    vc = VoiceConvertor(input_file="./data/sample_41.mp3", is_test=True)  # type: ignore[arg-type]
     result = vc.use_whisper()
