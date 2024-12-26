@@ -83,7 +83,7 @@ class VoiceConvertor(BaseModel):
         model = whisper.load_model(name="turbo", device="cuda:0")
         result = model.transcribe(self.input_file.as_posix(), word_timestamps=True)
         with open("result.json", "w", encoding="utf-8") as f:
-            json.dump(result, f, indent=4)
+            json.dump(result, f, indent=4, ensure_ascii=False)
         return result
 
     def use_oai_whisper(self) -> list[dict[str, Any]]:
@@ -113,4 +113,4 @@ class VoiceConvertor(BaseModel):
 
 if __name__ == "__main__":
     vc = VoiceConvertor(input_file="./data/sample_41.mp3")  # type: ignore[arg-type]
-    result = vc.use_oai_whisper()
+    result = vc.use_whisper()
