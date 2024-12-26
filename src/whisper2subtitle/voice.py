@@ -167,5 +167,5 @@ class VoiceConvertor(BaseModel):
 
 
 if __name__ == "__main__":
-    vc = VoiceConvertor(input_file="./data/sample_41.mp3", is_test=True)  # type: ignore[arg-type]
-    result = vc.use_oai_whisper()
+    vc = VoiceConvertor(input_file="./data/sample_41.mp3", is_test=False)  # type: ignore[arg-type]
+    vc.use_faster_whisper()
