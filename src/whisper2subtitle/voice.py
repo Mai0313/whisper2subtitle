@@ -1,12 +1,18 @@
+import json
 from typing import Any
 from pathlib import Path
+import warnings
 
 from config import Config
+from openai import OpenAI
 from moviepy import AudioFileClip, VideoFileClip
 import whisper
 from pydantic import BaseModel
 import requests
 from rich.console import Console
+from faster_whisper import WhisperModel, BatchedInferencePipeline
+
+warnings.filterwarnings("ignore", category=UserWarning)
 
 config = Config()
 console = Console()
@@ -23,9 +29,9 @@ class VoiceConvertor(BaseModel):
                 video.audio.write_audiofile(output_file.as_posix())
         self.input_file = output_file
 
-    def split_audio_into_chunks(self, max_size_mb: int, is_test: bool) -> list[bytes]:
+    def split_audio_into_chunks(self, max_size_mb: int, is_test: bool) -> list[Path]:
         """Split an audio file into chunks based on the maximum size (MB)."""
-        audio_chunks: list[bytes] = []
+        audio_chunks: list[Path] = []
 
         with AudioFileClip(self.input_file) as audio:
             total_duration = audio.duration
@@ -48,8 +54,7 @@ class VoiceConvertor(BaseModel):
                     if isinstance(chunk, AudioFileClip):
                         chunk.write_audiofile(chunk_path.as_posix(), bitrate="50k")
 
-                with open(chunk_path, "rb") as f:
-                    audio_chunks.append(f.read())
+                audio_chunks.append(chunk_path)
 
                 start_time = end_time
                 if is_test:
@@ -62,25 +67,50 @@ class VoiceConvertor(BaseModel):
             self.convert_video_to_audio()
 
         audio_bytes = self.split_audio_into_chunks(max_size_mb=25, is_test=False)
-        responses = []
+        transcriptions = []
         for audio in audio_bytes:
-            response = requests.post(
+            transcription = requests.post(
                 url="https://api-inference.huggingface.co/models/openai/whisper-large-v3-turbo",
                 headers={"Authorization": f"Bearer {config.hf_token}"},
-                data=audio,
+                data=audio.read_bytes(),
             )
-            responses.append(response.json())
-        return responses
+            transcriptions.append(transcription.json())
+        return transcriptions
 
     def use_whisper(self) -> whisper.DecodingResult:
         if self.input_file.suffix != ".mp3":
             self.convert_video_to_audio()
         model = whisper.load_model(name="turbo", device="cuda:0")
-        result = model.transcribe(self.input_file.as_posix())
+        result = model.transcribe(self.input_file.as_posix(), word_timestamps=True)
+        with open("result.json", "w", encoding="utf-8") as f:
+            json.dump(result, f, indent=4)
         return result
+
+    def use_oai_whisper(self) -> list[dict[str, Any]]:
+        if self.input_file.suffix != ".mp3":
+            self.convert_video_to_audio()
+
+        client = OpenAI(api_key=config.openai_api_key)
+
+        audio_bytes = self.split_audio_into_chunks(max_size_mb=25, is_test=True)
+        transcriptions = []
+        for audio in audio_bytes:
+            transcription = client.audio.transcriptions.create(
+                file=audio,
+                model="whisper-1",
+                response_format="verbose_json",
+                timestamp_granularities=["word"],
+            )
+            console.print(transcription)
+            transcriptions.append(transcription)
+        return transcriptions
+
+    def use_faster_whisper(self) -> None:
+        model = WhisperModel("turbo", device="cuda", compute_type="default")
+        batched_model = BatchedInferencePipeline(model=model)
+        _segments, _info = batched_model.transcribe("./data/sample_41.mp3", batch_size=16)
 
 
 if __name__ == "__main__":
     vc = VoiceConvertor(input_file="./data/sample_41.mp3")  # type: ignore[arg-type]
-    result = vc.use_whisper()
-    console.print(result)
+    result = vc.use_oai_whisper()
