@@ -135,16 +135,6 @@ imageio==2.36.1
     # via moviepy
 imageio-ffmpeg==0.5.1
     # via moviepy
-importlib-metadata==8.5.0 ; python_full_version < '3.10'
-    # via jupyter-client
-    # via jupyter-lsp
-    # via jupyterlab
-    # via jupyterlab-server
-    # via markdown
-    # via mkdocs
-    # via mkdocs-get-deps
-    # via mkdocstrings
-    # via nbconvert
 iniconfig==2.0.0
     # via pytest
 inquirerpy==0.3.4
@@ -544,9 +534,7 @@ typing-extensions==4.12.2
     # via async-lru
     # via griffe-typingdoc
     # via huggingface-hub
-    # via ipython
     # via librosa
-    # via mkdocstrings
     # via openai
     # via pydantic
     # via pydantic-core
@@ -571,5 +559,3 @@ websocket-client==1.8.0
     # via jupyter-server
 widgetsnbextension==4.0.13
     # via ipywidgets
-zipp==3.21.0 ; python_full_version < '3.10'
-    # via importlib-metadata
