@@ -4,11 +4,10 @@ from pathlib import Path
 import warnings
 from collections.abc import Iterable
 
-from config import Config
 from openai import OpenAI
 from moviepy import AudioFileClip, VideoFileClip
 import whisper
-from pydantic import Field, BaseModel, computed_field
+from pydantic import Field, computed_field
 import requests
 from rich.console import Console
 from faster_whisper import WhisperModel, BatchedInferencePipeline
@@ -16,11 +15,17 @@ from faster_whisper.transcribe import Segment
 
 warnings.filterwarnings("ignore", category=UserWarning)
 
-config = Config()
+from pydantic_settings import BaseSettings
+
 console = Console()
 
 
-class VoiceConvertor(BaseModel):
+class Config(BaseSettings):
+    hf_token: str | None = Field(default=None, alias="HF_TOKEN")
+    openai_api_key: str | None = Field(default=None, alias="OPENAI_API_KEY")
+
+
+class VoiceConvertor(Config):
     input_file: Path
     is_test: bool = Field(default=False)
 
@@ -118,12 +123,15 @@ class VoiceConvertor(BaseModel):
         if self.input_file.suffix != ".mp3":
             self.convert_video_to_audio()
 
+        if self.hf_token is None:
+            raise ValueError("Huggingface token is required for using Huggingface API")
+
         audio_bytes = self.split_audio_into_chunks(max_size_mb=25)
         transcriptions = []
         for audio in audio_bytes:
             transcription = requests.post(
                 url="https://api-inference.huggingface.co/models/openai/whisper-large-v3-turbo",
-                headers={"Authorization": f"Bearer {config.hf_token}"},
+                headers={"Authorization": f"Bearer {self.hf_token}"},
                 data=audio.read_bytes(),
             )
             transcriptions.append(transcription.json())
@@ -146,7 +154,10 @@ class VoiceConvertor(BaseModel):
         if self.input_file.suffix != ".mp3":
             self.convert_video_to_audio()
 
-        client = OpenAI(api_key=config.openai_api_key)
+        if self.openai_api_key is None:
+            raise ValueError("OpenAI API key is required for using OpenAI API")
+
+        client = OpenAI(api_key=self.openai_api_key)
 
         audio_bytes = self.split_audio_into_chunks(max_size_mb=25)
         for audio in audio_bytes:
@@ -167,5 +178,5 @@ class VoiceConvertor(BaseModel):
 
 
 if __name__ == "__main__":
-    vc = VoiceConvertor(input_file="./data/sample_41.mp3", is_test=False)  # type: ignore[arg-type]
+    vc = VoiceConvertor(input_file="./data/sample_41.mp3", is_test=False)
     vc.use_faster_whisper()
