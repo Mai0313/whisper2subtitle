@@ -5,17 +5,24 @@ import warnings
 from collections.abc import Iterable
 
 from openai import OpenAI
-from moviepy import AudioFileClip, VideoFileClip
+from moviepy import (
+    AudioFileClip,
+    VideoFileClip,
+    CompositeAudioClip,
+    CompositeVideoClip,
+    concatenate_audioclips,
+    concatenate_videoclips,
+)
 import whisper
 from pydantic import Field, computed_field
 import requests
 from rich.console import Console
 from faster_whisper import WhisperModel, BatchedInferencePipeline
+from pydantic_settings import BaseSettings
 from faster_whisper.transcribe import Segment
 
 warnings.filterwarnings("ignore", category=UserWarning)
 
-from pydantic_settings import BaseSettings
 
 console = Console()
 
@@ -25,10 +32,12 @@ class Config(BaseSettings):
     openai_api_key: str | None = Field(default=None, alias="OPENAI_API_KEY")
 
 
-class VoiceConvertor(Config):
+class MediaHandlerParams(Config):
     input_file: Path
     is_test: bool = Field(default=False)
 
+
+class SrtFormatter(MediaHandlerParams):
     @computed_field
     @property
     def output_file_srt(self) -> Path:
@@ -78,6 +87,8 @@ class VoiceConvertor(Config):
         milliseconds %= 1000
         return f"{hours:02}:{minutes:02}:{seconds:02},{milliseconds:03}"
 
+
+class MediaHandler(SrtFormatter):
     def convert_video_to_audio(self) -> None:
         """Convert a video file to an audio file."""
         output_file = self.input_file.with_suffix(".mp3")
@@ -86,7 +97,58 @@ class VoiceConvertor(Config):
                 video.audio.write_audiofile(output_file.as_posix())
         self.input_file = output_file
 
-    def split_audio_into_chunks(self, max_size_mb: int) -> list[Path]:
+    def convert_video_to_gif(self) -> None:
+        output_file = self.input_file.with_suffix(".gif")
+        if not output_file.exists():
+            with VideoFileClip(self.input_file) as video:
+                video.audio.write_audiofile(output_file.as_posix())
+        self.input_file = output_file
+
+    def concatenate_videos(self, video_paths: list[str] | list[Path]) -> Path:
+        output_path = self.input_file.parent / f"{self.input_file.stem}_combined.mp4"
+        clips = []
+        for video_path in video_paths:
+            if isinstance(video_path, Path | str):
+                clips.append(VideoFileClip(video_path))
+            elif isinstance(video_path, VideoFileClip):
+                clips.append(video_path)
+            else:
+                raise ValueError("Invalid video path")
+        final_clip: CompositeVideoClip = concatenate_videoclips(clips)
+        final_clip.write_videofile(output_path, codec="libx264")
+        final_clip.close()
+        return output_path
+
+    def split_video(self, max_size_mb: int) -> list[Path]:
+        video_chunks: list[Path] = []
+
+        with VideoFileClip(self.input_file) as clip:
+            total_size = self.input_file.stat().st_size / (1024 * 1024)
+            num_parts = int(total_size // max_size_mb) + 1
+            part_duration = clip.duration / num_parts
+
+            start_time = 0
+
+            while start_time < clip.duration:
+                end_time = min(start_time + part_duration, clip.duration)
+
+                with clip.subclipped(start_time, end_time) as subclip:
+                    chunk_path = self.input_file.with_stem(
+                        f"{self.input_file.stem}_chunk_{len(video_chunks) + 1}"
+                    )
+                    chunk_path = chunk_path.with_suffix(".mp4")
+
+                    if not chunk_path.exists() and isinstance(subclip, VideoFileClip):
+                        subclip.write_videofile(chunk_path.as_posix(), codec="libx264")
+
+                video_chunks.append(chunk_path)
+
+                start_time = end_time
+                if self.is_test:
+                    break
+        return video_chunks
+
+    def split_audio(self, max_size_mb: int) -> list[Path]:
         """Split an audio file into chunks based on the maximum size (MB)."""
         audio_chunks: list[Path] = []
 
@@ -119,6 +181,21 @@ class VoiceConvertor(Config):
 
         return audio_chunks
 
+    def concatenate_audios(self, audio_paths: str | list[str] | list[Path]) -> Path:
+        output_path = self.input_file.parent / f"{self.input_file.stem}_combined.mp3"
+        clips = []
+        for audio_path in audio_paths:
+            if isinstance(audio_path, Path | str):
+                clips.append(AudioFileClip(audio_path))
+            elif isinstance(audio_path, AudioFileClip):
+                clips.append(audio_path)
+            else:
+                raise ValueError("Invalid audio path")
+        final_clip: CompositeAudioClip = concatenate_audioclips(clips)
+        final_clip.write_audiofile(output_path)
+        final_clip.close()
+        return output_path
+
     def use_hugginface_api(self) -> list[dict[str, Any]]:
         if self.input_file.suffix != ".mp3":
             self.convert_video_to_audio()
@@ -126,7 +203,7 @@ class VoiceConvertor(Config):
         if self.hf_token is None:
             raise ValueError("Huggingface token is required for using Huggingface API")
 
-        audio_bytes = self.split_audio_into_chunks(max_size_mb=25)
+        audio_bytes = self.split_audio(max_size_mb=25)
         transcriptions = []
         for audio in audio_bytes:
             transcription = requests.post(
@@ -159,7 +236,7 @@ class VoiceConvertor(Config):
 
         client = OpenAI(api_key=self.openai_api_key)
 
-        audio_bytes = self.split_audio_into_chunks(max_size_mb=25)
+        audio_bytes = self.split_audio(max_size_mb=25)
         for audio in audio_bytes:
             transcription = client.audio.transcriptions.create(
                 file=audio, model="whisper-1", response_format="srt"
@@ -178,5 +255,5 @@ class VoiceConvertor(Config):
 
 
 if __name__ == "__main__":
-    vc = VoiceConvertor(input_file="./data/sample_41.mp3", is_test=False)
+    vc = MediaHandler(input_file="./data/sample_41.mp3", is_test=False)
     vc.use_faster_whisper()
